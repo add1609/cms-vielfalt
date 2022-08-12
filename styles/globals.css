@@ -1,4 +1,5 @@
 :root {
+    --accent: #52b36d;
     --border: rgb(51, 51, 51);
     --content: rgb(196, 196, 197);
     --entry: rgb(46, 46, 51);
@@ -10,18 +11,24 @@
     --theme: rgb(29, 30, 32);
     --code-bg: rgb(55, 56, 62);
     --content-gap: 20px;
+    --footer-height: 60px;
+    --header-height: 60px;
     --main-width: 800px;
+    --nav-width: 1024px;
 }
 body {
-    background-color: var(--theme);
+    background: var(--theme);
     color: var(--primary);
-}
-html,
-body {
-    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, segoe ui, Roboto, Oxygen,
+    Ubuntu, Cantarell, open sans, helvetica neue, sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
     margin: 0;
-    padding: 0;
+    word-break: break-word;
+}
+html {
+    overflow-y: scroll;
+    -webkit-tap-highlight-color: transparent;
 }
 a {
     color: inherit;

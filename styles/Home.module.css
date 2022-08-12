@@ -7,11 +7,11 @@
     flex: 1;
     flex-direction: column;
     justify-content: center;
-    min-height: 100vh;
+    min-height: calc(100vh - var(--footer-height));
     padding: 4rem 0;
 }
 .title a {
-    color: #0070f3;
+    color: var(--accent);
     text-decoration: none;
 }
 .title a:hover,
@@ -38,7 +38,7 @@
     border-radius: 5px;
     font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
     Bitstream Vera Sans Mono, Courier New, monospace;
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding: 0.75rem;
 }
 .grid {
@@ -54,7 +54,7 @@
     border-radius: var(--radius);
     color: inherit;
     margin: var(--content-gap);
-    max-width: 300px;
+    max-width: 360px;
     padding: var(--gap);
     text-align: left;
     text-decoration: none;
@@ -65,7 +65,7 @@
 .card:active {
     background-color: var(--code-bg);
     border-color: var(--theme);
-    color: #0070f3;
+    color: var(--accent);
 }
 .card h2 {
     font-size: 1.5rem;
@@ -76,11 +76,7 @@
     line-height: 1.5;
     margin: 0;
 }
-.logo {
-    height: 1em;
-    margin-left: 0.5rem;
-}
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .grid {
         flex-direction: column;
         width: 100%;
