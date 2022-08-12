@@ -10,3 +10,31 @@
     min-height: calc(100vh - var(--footer-height));
     padding: 0 0 4rem 0;
 }
+.title a {
+    color: var(--accent);
+    text-decoration: none;
+}
+.title a:hover,
+.title a:focus,
+.title a:active {
+    text-decoration: underline;
+}
+.title {
+    font-size: 3rem;
+    line-height: 1.15;
+    margin: 4rem 0;
+    text-align: center;
+}
+.grid {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: var(--main-width);
+}
+@media (max-width: 640px) {
+    .grid {
+        flex-direction: column;
+        width: 100%;
+    }
+}
