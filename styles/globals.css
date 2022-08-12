@@ -9,11 +9,12 @@
     --secondary: rgb(155, 156, 157);
     --tertiary: rgb(65, 66, 68);
     --theme: rgb(29, 30, 32);
+    --accent-2: #198754;
+    --accent-3: #157347;
     --code-bg: rgb(55, 56, 62);
     --content-gap: 20px;
     --footer-height: 60px;
     --header-height: 60px;
-    --main-width: 800px;
     --nav-width: 1024px;
 }
 body {
