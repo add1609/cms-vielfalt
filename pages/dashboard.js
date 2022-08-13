@@ -2,6 +2,7 @@ import styles from "../styles/Form.module.css";
 import {useAuth} from "../contexts/AuthContext";
 import Alert from "../components/Alert";
 import {useEffect, useState} from "react";
+import Link from "next/link";
 
 export default function Dashboard() {
     const {currentUser} = useAuth();
@@ -34,9 +35,11 @@ export default function Dashboard() {
             <main className={styles.main}>
                 <h1 className={styles.title}>
                     {currentUser && <>
-                        Hallo {" "}<a href="#">
-                        {currentUser.displayName.charAt(0).toUpperCase() + currentUser.displayName.slice(1)}!
-                    </a>
+                        Hallo {" "}
+                        <Link href="">
+                            <a>{currentUser.displayName.charAt(0).toUpperCase()
+                                + currentUser.displayName.slice(1)}!</a>
+                        </Link>
                     </>}
                 </h1>
                 <div className={styles.form} style={{maxWidth: "900px"}}>
