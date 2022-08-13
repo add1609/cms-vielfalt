@@ -16,8 +16,6 @@
 }
 .logo {
     display: flex;
-}
-.logo {
     flex-wrap: inherit;
 }
 .logo a {
@@ -26,7 +24,8 @@
 }
 .link {
     background-color: var(--entry);
-    padding: 0 1rem;
+    line-height: 1.75rem;
+    padding: 1rem;
     text-decoration: none;
 }
 .link:active,
@@ -34,14 +33,18 @@
     font-weight: 700;
     text-decoration: var(--primary) underline;
 }
-@media screen and (max-width: 700px) {
+@media screen and (min-width: 740px) {
+    .link:first-of-type {
+        margin-inline-end: var(--content-gap);
+        margin-inline-start: auto;
+    }
+}
+@media screen and (max-width: 740px) {
     .link {
         font-size: 1.05rem;
+        margin-top: .75rem;
     }
     .nav {
         flex-direction: column;
-    }
-    .link {
-        margin-top: .75rem;
     }
 }
