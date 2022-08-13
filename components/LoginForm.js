@@ -1,11 +1,8 @@
 import styles from "../styles/LoginForm.module.css";
 import Alert from "./Alert";
-import axios from "axios";
 import {useState} from "react";
-import {useRouter} from "next/router";
 
 export default function LoginForm() {
-    const router = useRouter();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [msg, setMsg] = useState("");
@@ -14,21 +11,6 @@ export default function LoginForm() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        axios.post("/api/auth/login", {username, password})
-            .then(() => {
-                setMsg("Success!");
-                setVariant("success");
-                setTimeout(() => {
-                    setLoading(false);
-                    router.push("/dashboard");
-                }, 500);
-            })
-            .catch(() => {
-                setMsg("Failed to Login!");
-                setVariant("danger");
-                setTimeout(() => setLoading(false), 1000);
-            });
     };
 
     return (
