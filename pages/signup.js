@@ -4,24 +4,25 @@ import {useState} from "react";
 import {useAuth} from "../contexts/AuthContext";
 import Alert from "../components/Alert";
 
-export default function Login() {
+export default function Signup() {
     const router = useRouter();
     const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [alert, setAlert] = useState({msg: "", variant: "default"});
     const [loading, setLoading] = useState(false);
-    const {login} = useAuth();
+    const {signup} = useAuth();
 
     async function handleLogin(e) {
         e.preventDefault();
         try {
             setLoading(true);
             setAlert({msg: "", variant: "default"});
-            await login(email, password);
-            setAlert({msg: "Successful login!", variant: "success"});
+            signup(email, name, password);
+            setAlert({msg: "Successful signup!", variant: "success"});
             setTimeout(() => router.push("/"), 500);
         } catch {
-            setAlert({msg: "Failed to login!", variant: "danger"});
+            setAlert({msg: "Failed to signup!", variant: "danger"});
         } finally {
             setLoading(false);
         }
@@ -31,7 +32,7 @@ export default function Login() {
         <div className={styles.container}>
             <main className={styles.main}>
                 <div className={styles.form}>
-                    <div className={styles.formHeader}>Log in</div>
+                    <div className={styles.formHeader}>Sign up</div>
                     <div className={styles.formBody}>
                         {alert.msg && <Alert msg={alert.msg} variant={alert.variant}/>}
                         <form onSubmit={handleLogin}>
@@ -41,11 +42,16 @@ export default function Login() {
                                        type="text" onChange={(e) => setEmail(e.target.value)}/>
                             </div>
                             <div>
+                                <label className={styles.formLabel}>Fullname</label>
+                                <input className={styles.formControl} placeholder="Fullname" required=""
+                                       type="text" onChange={(e) => setName(e.target.value)}/>
+                            </div>
+                            <div>
                                 <label className={styles.formLabel}>Password</label>
                                 <input className={styles.formControl} placeholder="Password" required=""
                                        type="password" onChange={(e) => setPassword(e.target.value)}/>
                             </div>
-                            <button className={styles.formButton} disabled={loading} type="submit">Log in</button>
+                            <button className={styles.formButton} disabled={loading} type="submit">Sign up</button>
                         </form>
                     </div>
                 </div>

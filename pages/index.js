@@ -9,9 +9,9 @@ export default function Home() {
                     Welcome to the <a href="#">CMS!</a>
                 </h1>
                 <div className={styles.grid}>
-                    <Card href={"/login"} title={"Login"}
+                    <Card width={"360px"} href={"/login"} title={"Login"}
                           text={"Instantly deploy your Next.js site to a public URL with Vercel."}/>
-                    <Card href={"/dashboard"} title={"Dashboard"}
+                    <Card width={"360px"} href={"/dashboard"} title={"Dashboard"}
                           text={"Instantly deploy your Next.js site to a public URL with Vercel."}/>
                 </div>
             </main>

@@ -4,7 +4,6 @@
     border-radius: var(--radius);
     color: inherit;
     margin: var(--content-gap);
-    max-width: 360px;
     padding: var(--gap);
     text-align: left;
     text-decoration: none;
