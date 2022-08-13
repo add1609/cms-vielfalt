@@ -6,6 +6,7 @@ import {
     signInWithEmailAndPassword,
     sendPasswordResetEmail,
     signOut,
+    updateProfile,
 } from "firebase/auth";
 
 import {get, push, ref, remove, set} from "firebase/database";
@@ -20,8 +21,23 @@ export function AuthProvider({children}) {
     const [currentUser, setCurrentUser] = useState(undefined);
     const [loading, setLoading] = useState(false);
 
-    function signup(email, password) {
-        return createUserWithEmailAndPassword(auth, email, password);
+    async function signup(email, fullName, password) {
+        const {user} = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(user, {
+            displayName: fullName,
+        });
+
+        const data = {
+            uid: user.uid,
+            email: user.email,
+            fullName: fullName,
+        };
+
+        setLoading(true);
+        const path = "users/" + user.uid;
+        const dbref = ref(db, path);
+        await set(dbref, data);
+        setLoading(false);
     }
 
     function login(email, password) {
@@ -37,7 +53,7 @@ export function AuthProvider({children}) {
     }
 
     async function uploadTodb(obj, pathname) {
-        if (currentUser.uid !== undefined) {
+        if (currentUser) {
             setLoading(true);
             const path = "users/" + currentUser.uid + "/" + pathname;
             const dbref = ref(db, path);
@@ -48,7 +64,7 @@ export function AuthProvider({children}) {
     }
 
     async function updateTodb(obj, dataKey, pathname) {
-        if (currentUser.uid !== undefined) {
+        if (currentUser) {
             setLoading(true);
             const path = "users/" + currentUser.uid + "/" + pathname + "/" + dataKey;
             const dbref = ref(db, path);
@@ -58,7 +74,7 @@ export function AuthProvider({children}) {
     }
 
     async function deleteData(dataKey, pathname) {
-        if (currentUser.uid !== undefined) {
+        if (currentUser) {
             setLoading(true);
             const path = "users/" + currentUser.uid + "/" + pathname + "/" + dataKey;
             const dbref = ref(db, path);
