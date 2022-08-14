@@ -34,7 +34,7 @@ export default function Signup() {
                 <div className={styles.form}>
                     <div className={styles.formHeader}>Sign up</div>
                     <div className={styles.formBody}>
-                        {alert.msg && <Alert msg={alert.msg} variant={alert.variant}/>}
+                        {alert.msg && <Alert variant={alert.variant}>{alert.msg}</Alert>}
                         <form onSubmit={handleLogin}>
                             <div>
                                 <label className={styles.formLabel}>Email</label>
