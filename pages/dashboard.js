@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function Dashboard() {
     const {currentUser} = useAuth();
     const [alert, setAlert] = useState({msg: "", variant: "default"});
-    const [socketMsg, setSocketMsg] = useState({msg: "", variant: "default"});
+    const [previewURL, setPreviewURL] = useState("");
     const [loading, setLoading] = useState(false);
     const [wsInstance, setWsInstance] = useState(null);
 
@@ -49,7 +49,7 @@ export default function Dashboard() {
             setWsInstance(null);
         })
         ws.addEventListener("message", (evt) => {
-            setSocketMsg({msg: evt.data, variant: "primary"});
+            setPreviewURL(evt.data);
         })
     }
 
@@ -121,9 +121,11 @@ export default function Dashboard() {
                                           onChange={(e) => saveToCache("article_content", e.target.value)}/>
                             </div>
                             {wsInstance !== null && <>
-                                {socketMsg.msg && <>
+                                {previewURL && <>
                                         <label className={styles.formLabel}>Preview URL:</label>
-                                        <Alert variant={socketMsg.variant}>{socketMsg.msg}</Alert>
+                                        <Alert variant="primary">
+                                            <a href={previewURL} target="_blank" rel="noreferrer">{previewURL}</a>
+                                        </Alert>
                                 </>}
                             </>}
                             {wsInstance !== null &&
