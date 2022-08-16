@@ -1,56 +1,37 @@
 import styles from "../styles/Form.module.css";
 import {useAuth} from "../contexts/AuthContext";
+import {useWS} from "../contexts/WsContext";
+import {saveToCache, getFromCache} from "../service/cacheLocal";
 import Alert from "../components/Alert";
+
 import {useEffect, useState} from "react";
 import Link from "next/link";
 
 export default function Dashboard() {
     const {currentUser} = useAuth();
+    const {wsInstance, connectToWs} = useWS();
     const [alert, setAlert] = useState({msg: "", variant: "default"});
-    const [previewURL, setPreviewURL] = useState("");
     const [loading, setLoading] = useState(false);
-    const [wsInstance, setWsInstance] = useState(null);
+    const [previewURL, setPreviewURL] = useState("");
 
-    const saveToCache = (id, val) => {
-        if (val === "") {
-            localStorage.removeItem(id);
-        } else {
-            localStorage.setItem(id, val);
+    const handleConnect = () => {
+        if (window["WebSocket"] && wsInstance === null) {
+            connectToWs(
+                () => {setAlert({msg: "Connected to socket!", variant: "success"})},
+                () => {setAlert({msg: "ERROR!", variant: "danger"})},
+                {
+                    1000: () => {setAlert({msg: "1000", variant: "danger"})},
+                    1006: () => {setAlert({msg: "1006", variant: "warning"})},
+                },
+                (msg) => {setPreviewURL(msg)}
+            )
         }
-    };
+    }
 
-    const getFromCache = (id) => {
-        if (!localStorage.getItem(id)) {
-            return "";
-        } else {
-            return localStorage.getItem(id);
+    const handleClose = () => {
+        if (wsInstance !== null) {
+            wsInstance.close(1000);
         }
-    };
-
-    function connectToWs() {
-        const ws = new WebSocket(process.env.NEXT_PUBLIC_WEB_SOCKET_URL);
-        ws.addEventListener("open", () => {
-            setAlert({msg: "Connected to socket!", variant: "success"});
-            setWsInstance(ws);
-        })
-        ws.addEventListener("error", () => {
-            setAlert({msg: "Failed to connect to socket!", variant: "danger"});
-            setWsInstance(null);
-        })
-        ws.addEventListener("close", (evt) => {
-            switch (evt.code) {
-                case 1000:
-                    setAlert({msg: "Connection closed by client!", variant: "warning"});
-                    break;
-                case 1006:
-                    setAlert({msg: "Connection closed by server!", variant: "danger"});
-                    break;
-            }
-            setWsInstance(null);
-        })
-        ws.addEventListener("message", (evt) => {
-            setPreviewURL(evt.data);
-        })
     }
 
     function handleSubmit() {
@@ -69,18 +50,6 @@ export default function Dashboard() {
             } finally {
                 setLoading(false);
             }
-        }
-    }
-
-    function handleConnect() {
-        if (window["WebSocket"] && wsInstance === null) {
-            connectToWs()
-        }
-    }
-
-    function handleClose() {
-        if (wsInstance !== null) {
-            wsInstance.close(1000);
         }
     }
 
