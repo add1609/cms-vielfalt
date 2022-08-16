@@ -29,7 +29,7 @@ export default function Dashboard() {
 
     function connectToWs() {
         //const ws = new WebSocket("wss://localhost:9100/socket");
-        const ws = new WebSocket("wss://cms.ahmedsami.xyz/socket");
+        const ws = new WebSocket("wss://188.166.192.39/socket");
         ws.addEventListener("open", () => {
             setAlert({msg: "Connected to socket!", variant: "success"});
             setWsInstance(ws);
