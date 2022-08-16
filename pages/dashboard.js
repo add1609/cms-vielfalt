@@ -28,7 +28,7 @@ export default function Dashboard() {
     };
 
     function connectToWs() {
-        const ws = new WebSocket("wss://srv.vielfalt-ag.xyz/socket");
+        const ws = new WebSocket(process.env.NEXT_PUBLIC_WEB_SOCKET_URL);
         ws.addEventListener("open", () => {
             setAlert({msg: "Connected to socket!", variant: "success"});
             setWsInstance(ws);
