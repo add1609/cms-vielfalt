@@ -1,7 +1,7 @@
 import styles from "../styles/Form.module.css";
 import {useAuth} from "../contexts/AuthContext";
 import {useWS} from "../contexts/WsContext";
-import {saveToCache, getFromCache} from "../service/cacheLocal";
+import {getFromCache, saveToCache} from "../service/cacheLocal";
 import Alert from "../components/Alert";
 
 import {useEffect, useState} from "react";
@@ -9,7 +9,7 @@ import Link from "next/link";
 
 export default function Dashboard() {
     const {currentUser} = useAuth();
-    const {wsInstance, connectToWs} = useWS();
+    const {wsInstance, connectToWs, sendToWs} = useWS();
     const [alert, setAlert] = useState({msg: "", variant: "default"});
     const [loading, setLoading] = useState(false);
     const [previewURL, setPreviewURL] = useState("");
@@ -17,39 +17,34 @@ export default function Dashboard() {
     const handleConnect = () => {
         if (window["WebSocket"] && wsInstance === null) {
             connectToWs(
-                () => {setAlert({msg: "Connected to socket!", variant: "success"})},
-                () => {setAlert({msg: "ERROR!", variant: "danger"})},
+                () => {setAlert({msg: "Connected to socket!", variant: "success"});},
+                () => {setAlert({msg: "ERROR!", variant: "danger"});},
                 {
-                    1000: () => {setAlert({msg: "1000", variant: "danger"})},
-                    1006: () => {setAlert({msg: "1006", variant: "warning"})},
+                    1000: () => {setAlert({msg: "1000", variant: "danger"});},
+                    1006: () => {setAlert({msg: "1006", variant: "warning"});},
                 },
-                (msg) => {setPreviewURL(msg)}
-            )
+            );
         }
-    }
+    };
 
     const handleClose = () => {
         if (wsInstance !== null) {
             wsInstance.close(1000);
         }
-    }
+    };
 
-    function handleSubmit() {
+    function handleSend() {
         if (wsInstance !== null) {
-            try {
-                setLoading(true);
-                setAlert({msg: "", variant: "default"});
-                const msg = {
-                    "article_path": document.getElementById("article_path").value,
-                    "article_content": document.getElementById("article_content").value,
-                };
-                wsInstance.send(JSON.stringify(msg));
-                setAlert({msg: "Sent to socket!", variant: "success"});
-            } catch {
-                setAlert({msg: "Failed to send to socket!", variant: "danger"});
-            } finally {
-                setLoading(false);
-            }
+            setLoading(true);
+            setAlert({msg: "", variant: "default"});
+            sendToWs({"action": "reqPreviewUrl", "payload": {}},
+                (res) => {
+                    setPreviewURL(res["payload"]["previewUrl"]);
+                    setAlert({msg: "Sent to socket!", variant: "success"});
+                },
+                () => {setAlert({msg: "Failed to send to socket!", variant: "danger"});},
+            );
+            setLoading(false);
         }
     }
 
@@ -91,15 +86,15 @@ export default function Dashboard() {
                             </div>
                             {wsInstance !== null && <>
                                 {previewURL && <>
-                                        <label className={styles.formLabel}>Preview URL:</label>
-                                        <Alert variant="primary">
-                                            <a href={previewURL} target="_blank" rel="noreferrer">{previewURL}</a>
-                                        </Alert>
+                                    <label className={styles.formLabel}>Preview URL:</label>
+                                    <Alert variant="primary">
+                                        <a href={previewURL} target="_blank" rel="noreferrer">{previewURL}</a>
+                                    </Alert>
                                 </>}
                             </>}
                             {wsInstance !== null &&
                                 <button className={styles.formButton} disabled={loading}
-                                        onClick={handleSubmit}>Send</button>
+                                        onClick={handleSend}>Send</button>
                             }
                             {wsInstance !== null &&
                                 <button className={styles.formButton} disabled={loading}
