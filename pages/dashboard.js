@@ -12,16 +12,25 @@ export default function Dashboard() {
     const {wsInstance, connectToWs, sendToWs} = useWS();
     const [alert, setAlert] = useState({msg: "", variant: "default"});
     const [loading, setLoading] = useState(false);
+    const [serverRes, setServerRes] = useState("");
     const [previewURL, setPreviewURL] = useState("");
 
     const handleConnect = () => {
         if (window["WebSocket"] && wsInstance === null) {
             connectToWs(
-                () => {setAlert({msg: "Connected to socket!", variant: "success"});},
-                () => {setAlert({msg: "ERROR!", variant: "danger"});},
+                () => {
+                    setAlert({msg: "Connected to socket!", variant: "success"});
+                },
+                () => {
+                    setAlert({msg: "ERROR!", variant: "danger"});
+                },
                 {
-                    1000: () => {setAlert({msg: "1000", variant: "danger"});},
-                    1006: () => {setAlert({msg: "1006", variant: "warning"});},
+                    1000: () => {
+                        setAlert({msg: "1000", variant: "danger"});
+                    },
+                    1006: () => {
+                        setAlert({msg: "1006", variant: "warning"});
+                    },
                 },
             );
         }
@@ -37,20 +46,51 @@ export default function Dashboard() {
         if (wsInstance !== null) {
             setLoading(true);
             setAlert({msg: "", variant: "default"});
-            sendToWs({"action": "reqPreviewUrl", "payload": {}},
-                (res) => {
-                    setPreviewURL(res["payload"]["previewUrl"]);
-                    setAlert({msg: "Sent to socket!", variant: "success"});
-                },
-                () => {setAlert({msg: "Failed to send to socket!", variant: "danger"});},
-            );
+            let reqData;
+            try {
+                reqData = {
+                    "action": document.getElementById("req_action").value,
+                    "payload": JSON.parse(document.getElementById("req_payload").value),
+                };
+            } catch {
+                reqData = {
+                    "action": document.getElementById("req_action").value,
+                    "payload": {},
+                };
+            } finally {
+                sendToWs(reqData, (res) => {
+                        setAlert({msg: "Sent to socket!", variant: "success"});
+                        if (res["success"]) {
+                            setAlert({msg: "Server Success!", variant: "success"});
+                            switch (res["action"]) {
+                                case "resStartHugo": {
+                                    setServerRes(JSON.stringify(res));
+                                    setPreviewURL(res["payload"]["previewUrl"])
+                                    break;
+                                }
+                                case "resStopHugo": {
+                                    setServerRes(JSON.stringify(res));
+                                    setPreviewURL("")
+                                    break;
+                                }
+                                case "resAllFiles": {
+                                    setServerRes(JSON.stringify(res));
+                                    setPreviewURL("")
+                                    break;
+                                }
+                            }
+                        }
+                    },
+                    () => {setAlert({msg: "Failed to send to socket!", variant: "danger"});},
+                );
+            }
             setLoading(false);
         }
     }
 
     useEffect(() => {
-        document.getElementById("article_path").value = getFromCache("article_path");
-        document.getElementById("article_content").value = getFromCache("article_content");
+        document.getElementById("req_action").value = getFromCache("req_action");
+        document.getElementById("req_payload").value = getFromCache("req_payload");
     }, []);
 
     return (
@@ -73,16 +113,16 @@ export default function Dashboard() {
                         }
                         <form onSubmit={e => e.preventDefault()}>
                             <div>
-                                <label className={styles.formLabel}>Path</label>
-                                <input className={styles.formControl} id="article_path"
-                                       placeholder="Path" required="" type="text"
-                                       onChange={(e) => saveToCache("article_path", e.target.value)}/>
+                                <label className={styles.formLabel}>Request Action</label>
+                                <input className={styles.formControl} id="req_action"
+                                       placeholder="reqStartHugo" required="" type="text"
+                                       onChange={(e) => saveToCache("req_action", e.target.value)}/>
                             </div>
                             <div>
-                                <label className={styles.formLabel}>Article</label>
-                                <textarea className={styles.formTextarea} id="article_content"
-                                          placeholder="Article" required="" rows={10}
-                                          onChange={(e) => saveToCache("article_content", e.target.value)}/>
+                                <label className={styles.formLabel}>Request Payload</label>
+                                <textarea className={styles.formTextarea} id="req_payload"
+                                          placeholder="{}" required="" rows={10}
+                                          onChange={(e) => saveToCache("req_payload", e.target.value)}/>
                             </div>
                             {wsInstance !== null && <>
                                 {previewURL && <>
@@ -90,6 +130,13 @@ export default function Dashboard() {
                                     <Alert variant="primary">
                                         <a href={previewURL} target="_blank" rel="noreferrer">{previewURL}</a>
                                     </Alert>
+                                </>}
+                            </>}
+                            {wsInstance !== null && <>
+                                {serverRes && <>
+                                    <label className={styles.formLabel}>Server Response:</label>
+                                    <textarea className={styles.formTextarea} value={serverRes}
+                                              disabled rows={10} style={{fontSize: "1rem"}}/>
                                 </>}
                             </>}
                             {wsInstance !== null &&
