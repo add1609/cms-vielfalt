@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import Layout from "../components/Layout";
 import Head from "next/head";
 import {AuthProvider} from "../contexts/AuthContext";
+import {WsProvider} from "../contexts/WsContext";
 
 function MyApp({Component, pageProps}) {
     return (
@@ -12,9 +13,11 @@ function MyApp({Component, pageProps}) {
                 <meta name="author" content="Ahmed Sami"/>
                 <link rel="icon" href="/favicon.ico"/>
             </Head>
-            <Layout>
-                <Component {...pageProps} />
-            </Layout>
+            <WsProvider>
+                <Layout>
+                    <Component {...pageProps} />
+                </Layout>
+            </WsProvider>
         </AuthProvider>
     );
 }

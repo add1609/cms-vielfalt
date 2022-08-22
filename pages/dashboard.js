@@ -1,92 +1,98 @@
 import styles from "../styles/Form.module.css";
 import {useAuth} from "../contexts/AuthContext";
+import {useWS} from "../contexts/WsContext";
+import {getFromCache, saveToCache} from "../service/cacheLocal";
 import Alert from "../components/Alert";
+
 import {useEffect, useState} from "react";
 import Link from "next/link";
 
 export default function Dashboard() {
     const {currentUser} = useAuth();
+    const {wsInstance, connectToWs, sendToWs} = useWS();
     const [alert, setAlert] = useState({msg: "", variant: "default"});
-    const [previewURL, setPreviewURL] = useState("");
     const [loading, setLoading] = useState(false);
-    const [wsInstance, setWsInstance] = useState(null);
+    const [serverRes, setServerRes] = useState("");
+    const [previewURL, setPreviewURL] = useState("");
 
-    const saveToCache = (id, val) => {
-        if (val === "") {
-            localStorage.removeItem(id);
-        } else {
-            localStorage.setItem(id, val);
-        }
-    };
-
-    const getFromCache = (id) => {
-        if (!localStorage.getItem(id)) {
-            return "";
-        } else {
-            return localStorage.getItem(id);
-        }
-    };
-
-    function connectToWs() {
-        const ws = new WebSocket(process.env.NEXT_PUBLIC_WEB_SOCKET_URL);
-        ws.addEventListener("open", () => {
-            setAlert({msg: "Connected to socket!", variant: "success"});
-            setWsInstance(ws);
-        })
-        ws.addEventListener("error", () => {
-            setAlert({msg: "Failed to connect to socket!", variant: "danger"});
-            setWsInstance(null);
-        })
-        ws.addEventListener("close", (evt) => {
-            switch (evt.code) {
-                case 1000:
-                    setAlert({msg: "Connection closed by client!", variant: "warning"});
-                    break;
-                case 1006:
-                    setAlert({msg: "Connection closed by server!", variant: "danger"});
-                    break;
-            }
-            setWsInstance(null);
-        })
-        ws.addEventListener("message", (evt) => {
-            setPreviewURL(evt.data);
-        })
-    }
-
-    function handleSubmit() {
-        if (wsInstance !== null) {
-            try {
-                setLoading(true);
-                setAlert({msg: "", variant: "default"});
-                const msg = {
-                    "article_path": document.getElementById("article_path").value,
-                    "article_content": document.getElementById("article_content").value,
-                };
-                wsInstance.send(JSON.stringify(msg));
-                setAlert({msg: "Sent to socket!", variant: "success"});
-            } catch {
-                setAlert({msg: "Failed to send to socket!", variant: "danger"});
-            } finally {
-                setLoading(false);
-            }
-        }
-    }
-
-    function handleConnect() {
+    const handleConnect = () => {
         if (window["WebSocket"] && wsInstance === null) {
-            connectToWs()
+            connectToWs(
+                () => {
+                    setAlert({msg: "Connected to socket!", variant: "success"});
+                },
+                () => {
+                    setAlert({msg: "ERROR!", variant: "danger"});
+                },
+                {
+                    1000: () => {
+                        setAlert({msg: "1000", variant: "danger"});
+                    },
+                    1006: () => {
+                        setAlert({msg: "1006", variant: "warning"});
+                    },
+                },
+            );
         }
-    }
+    };
 
-    function handleClose() {
+    const handleClose = () => {
         if (wsInstance !== null) {
             wsInstance.close(1000);
+        }
+    };
+
+    function handleSend() {
+        if (wsInstance !== null) {
+            setLoading(true);
+            setAlert({msg: "", variant: "default"});
+            let reqData;
+            try {
+                reqData = {
+                    "action": document.getElementById("req_action").value,
+                    "payload": JSON.parse(document.getElementById("req_payload").value),
+                };
+            } catch {
+                reqData = {
+                    "action": document.getElementById("req_action").value,
+                    "payload": {},
+                };
+            } finally {
+                sendToWs(reqData, (res) => {
+                        setAlert({msg: "Sent to socket!", variant: "success"});
+                        if (res["success"]) {
+                            setAlert({msg: "Server Success!", variant: "success"});
+                            switch (res["action"]) {
+                                case "resStartHugo": {
+                                    setServerRes(JSON.stringify(res));
+                                    setPreviewURL(res["payload"]["previewUrl"]);
+                                    break;
+                                }
+                                case "resStopHugo": {
+                                    setServerRes(JSON.stringify(res));
+                                    setPreviewURL("");
+                                    break;
+                                }
+                                case "resAllFiles": {
+                                    setServerRes(JSON.stringify(res));
+                                    setPreviewURL("");
+                                    break;
+                                }
+                            }
+                        }
+                    },
+                    () => {
+                        setAlert({msg: "Failed to send to socket!", variant: "danger"});
+                    },
+                );
+            }
+            setLoading(false);
         }
     }
 
     useEffect(() => {
-        document.getElementById("article_path").value = getFromCache("article_path");
-        document.getElementById("article_content").value = getFromCache("article_content");
+        document.getElementById("req_action").value = getFromCache("req_action");
+        document.getElementById("req_payload").value = getFromCache("req_payload");
     }, []);
 
     return (
@@ -109,28 +115,35 @@ export default function Dashboard() {
                         }
                         <form onSubmit={e => e.preventDefault()}>
                             <div>
-                                <label className={styles.formLabel}>Path</label>
-                                <input className={styles.formControl} id="article_path"
-                                       placeholder="Path" required="" type="text"
-                                       onChange={(e) => saveToCache("article_path", e.target.value)}/>
+                                <label className={styles.formLabel}>Request Action</label>
+                                <input className={styles.formControl} id="req_action"
+                                       placeholder="reqStartHugo" required="" type="text"
+                                       onChange={(e) => saveToCache("req_action", e.target.value)}/>
                             </div>
                             <div>
-                                <label className={styles.formLabel}>Article</label>
-                                <textarea className={styles.formTextarea} id="article_content"
-                                          placeholder="Article" required="" rows={10}
-                                          onChange={(e) => saveToCache("article_content", e.target.value)}/>
+                                <label className={styles.formLabel}>Request Payload</label>
+                                <textarea className={styles.formTextarea} id="req_payload"
+                                          placeholder="{}" required="" rows={10}
+                                          onChange={(e) => saveToCache("req_payload", e.target.value)}/>
                             </div>
                             {wsInstance !== null && <>
                                 {previewURL && <>
-                                        <label className={styles.formLabel}>Preview URL:</label>
-                                        <Alert variant="primary">
-                                            <a href={previewURL} target="_blank" rel="noreferrer">{previewURL}</a>
-                                        </Alert>
+                                    <label className={styles.formLabel}>Preview URL:</label>
+                                    <Alert variant="primary">
+                                        <a href={previewURL} target="_blank" rel="noreferrer">{previewURL}</a>
+                                    </Alert>
+                                </>}
+                            </>}
+                            {wsInstance !== null && <>
+                                {serverRes && <>
+                                    <label className={styles.formLabel}>Server Response:</label>
+                                    <textarea className={styles.formTextarea} value={serverRes}
+                                              disabled rows={10} style={{fontSize: "1rem"}}/>
                                 </>}
                             </>}
                             {wsInstance !== null &&
                                 <button className={styles.formButton} disabled={loading}
-                                        onClick={handleSubmit}>Send</button>
+                                        onClick={handleSend}>Send</button>
                             }
                             {wsInstance !== null &&
                                 <button className={styles.formButton} disabled={loading}

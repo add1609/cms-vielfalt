@@ -92,7 +92,7 @@ export function AuthProvider({children}) {
         });
     }, []);
 
-    const value = {
+    const authValue = {
         currentUser,
         signup,
         login,
@@ -103,7 +103,7 @@ export function AuthProvider({children}) {
         deleteData,
     };
     return (
-        <AuthContext.Provider value={value}>
+        <AuthContext.Provider value={authValue}>
             {!loading && children}
         </AuthContext.Provider>
     );
