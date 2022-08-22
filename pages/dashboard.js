@@ -91,73 +91,75 @@ export default function Dashboard() {
     }
 
     useEffect(() => {
-        document.getElementById("req_action").value = getFromCache("req_action");
-        document.getElementById("req_payload").value = getFromCache("req_payload");
-    }, []);
+        if(currentUser) {
+            document.getElementById("req_action").value = getFromCache("req_action");
+            document.getElementById("req_payload").value = getFromCache("req_payload");
+        }
+    }, [currentUser]);
 
     return (
         <div className={styles.container}>
             <main className={styles.main}>
-                <h1 className={styles.title}>
-                    {currentUser && <>
+                {currentUser && <>
+                    <h1 className={styles.title}>
                         Hallo {" "}
                         <Link href="">
                             <a>{currentUser.displayName.charAt(0).toUpperCase()
                                 + currentUser.displayName.slice(1)}!</a>
                         </Link>
-                    </>}
-                </h1>
-                <div className={styles.form} style={{maxWidth: "900px"}}>
-                    <div className={styles.formHeader}>New Post</div>
-                    <div className={styles.formBody}>
-                        {alert.msg &&
-                            <Alert variant={alert.variant}>{alert.msg}</Alert>
-                        }
-                        <form onSubmit={e => e.preventDefault()}>
-                            <div>
-                                <label className={styles.formLabel}>Request Action</label>
-                                <input className={styles.formControl} id="req_action"
-                                       placeholder="reqStartHugo" required="" type="text"
-                                       onChange={(e) => saveToCache("req_action", e.target.value)}/>
-                            </div>
-                            <div>
-                                <label className={styles.formLabel}>Request Payload</label>
-                                <textarea className={styles.formTextarea} id="req_payload"
-                                          placeholder="{}" required="" rows={10}
-                                          onChange={(e) => saveToCache("req_payload", e.target.value)}/>
-                            </div>
-                            {wsInstance !== null && <>
-                                {previewURL && <>
-                                    <label className={styles.formLabel}>Preview URL:</label>
-                                    <Alert variant="primary">
-                                        <a href={previewURL} target="_blank" rel="noreferrer">{previewURL}</a>
-                                    </Alert>
-                                </>}
-                            </>}
-                            {wsInstance !== null && <>
-                                {serverRes && <>
-                                    <label className={styles.formLabel}>Server Response:</label>
-                                    <textarea className={styles.formTextarea} value={serverRes}
-                                              disabled rows={10} style={{fontSize: "1rem"}}/>
-                                </>}
-                            </>}
-                            {wsInstance !== null &&
-                                <button className={styles.formButton} disabled={loading}
-                                        onClick={handleSend}>Send</button>
+                    </h1>
+                    <div className={styles.form} style={{maxWidth: "900px"}}>
+                        <div className={styles.formHeader}>New Post</div>
+                        <div className={styles.formBody}>
+                            {alert.msg &&
+                                <Alert variant={alert.variant}>{alert.msg}</Alert>
                             }
-                            {wsInstance !== null &&
-                                <button className={styles.formButton} disabled={loading}
-                                        onClick={handleClose}>Close connection</button>
-                            }
-                            {wsInstance === null && <>
-                                {currentUser &&
+                            <form onSubmit={e => e.preventDefault()}>
+                                <div>
+                                    <label className={styles.formLabel}>Request Action</label>
+                                    <input className={styles.formControl} id="req_action"
+                                           placeholder="reqStartHugo" required="" type="text"
+                                           onChange={(e) => saveToCache("req_action", e.target.value)}/>
+                                </div>
+                                <div>
+                                    <label className={styles.formLabel}>Request Payload</label>
+                                    <textarea className={styles.formTextarea} id="req_payload"
+                                              placeholder="{}" required="" rows={10}
+                                              onChange={(e) => saveToCache("req_payload", e.target.value)}/>
+                                </div>
+                                {wsInstance !== null && <>
+                                    {previewURL && <>
+                                        <label className={styles.formLabel}>Preview URL:</label>
+                                        <Alert variant="primary">
+                                            <a href={previewURL} target="_blank" rel="noreferrer">{previewURL}</a>
+                                        </Alert>
+                                    </>}
+                                </>}
+                                {wsInstance !== null && <>
+                                    {serverRes && <>
+                                        <label className={styles.formLabel}>Server Response:</label>
+                                        <textarea className={styles.formTextarea} value={serverRes}
+                                                  disabled rows={10} style={{fontSize: "1rem"}}/>
+                                    </>}
+                                </>}
+                                {wsInstance !== null &&
                                     <button className={styles.formButton} disabled={loading}
-                                            onClick={handleConnect}>Connect to socket</button>
+                                            onClick={handleSend}>Send</button>
                                 }
-                            </>}
-                        </form>
+                                {wsInstance !== null &&
+                                    <button className={styles.formButton} disabled={loading}
+                                            onClick={handleClose}>Close connection</button>
+                                }
+                                {wsInstance === null && <>
+                                    {currentUser &&
+                                        <button className={styles.formButton} disabled={loading}
+                                                onClick={handleConnect}>Connect to socket</button>
+                                    }
+                                </>}
+                            </form>
+                        </div>
                     </div>
-                </div>
+                </>}
             </main>
         </div>
     );
