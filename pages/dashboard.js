@@ -139,7 +139,7 @@ export default function Dashboard() {
                                     {serverRes && <>
                                         <label className={styles.formLabel}>Server Response:</label>
                                         <textarea className={styles.formTextarea} value={serverRes}
-                                                  disabled rows={10} style={{fontSize: "1rem"}}/>
+                                                  rows={10} style={{fontSize: "1rem"}}/>
                                     </>}
                                 </>}
                                 {wsInstance !== null &&
