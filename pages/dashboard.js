@@ -65,23 +65,25 @@ export default function Dashboard() {
                             switch (res["action"]) {
                                 case "resStartHugo": {
                                     setServerRes(JSON.stringify(res));
-                                    setPreviewURL(res["payload"]["previewUrl"])
+                                    setPreviewURL(res["payload"]["previewUrl"]);
                                     break;
                                 }
                                 case "resStopHugo": {
                                     setServerRes(JSON.stringify(res));
-                                    setPreviewURL("")
+                                    setPreviewURL("");
                                     break;
                                 }
                                 case "resAllFiles": {
                                     setServerRes(JSON.stringify(res));
-                                    setPreviewURL("")
+                                    setPreviewURL("");
                                     break;
                                 }
                             }
                         }
                     },
-                    () => {setAlert({msg: "Failed to send to socket!", variant: "danger"});},
+                    () => {
+                        setAlert({msg: "Failed to send to socket!", variant: "danger"});
+                    },
                 );
             }
             setLoading(false);
